@@ -5,4 +5,6 @@
 
 __device__ char brainfuck(char *program, int len);
 
+__host__ void show_data(char *data);
+
 #endif // BRAINFUCK_H_INCLUDED
