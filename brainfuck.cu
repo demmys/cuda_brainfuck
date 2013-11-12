@@ -1,5 +1,8 @@
 #include "brainfuck.h"
 
+/*
+ * Device program main entry point.
+ */
 __global__ void kernel(char *res, char *data){
     int idx = threadIdx.x;
     int phead = *data + 1;
@@ -11,6 +14,9 @@ __global__ void kernel(char *res, char *data){
     res[idx] = brainfuck(data + phead, data[idx]);
 }
 
+/*
+ * Host program main entry point.
+ */
 __host__ int main(int argc, char *argv[]){
     // Host
     char *program[2] = { ">++++[<++++++++>-]<+.", ">++++[<++++++++>-]<+." };
@@ -39,10 +45,9 @@ __host__ int main(int argc, char *argv[]){
     return 0;
 }
 
-__device__ char brainfuck(char *program, int len){
-    return *program;
-}
-
+/*
+ * Host utility program
+ */
 __host__ void show_data(char *data){
     for(; *data; data++){
         if(*data > 32){
@@ -52,4 +57,11 @@ __host__ void show_data(char *data){
         }
     }
     puts("");
+}
+
+/*
+ * Device Brainfuck program
+ */
+__device__ char brainfuck(char *program, int len){
+    return *program;
 }
