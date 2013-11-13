@@ -10,15 +10,15 @@ typedef enum{
     DEC,
     NEXT,
     PREV,
-    PUT,
     GET,
+    PUT,
     BEGIN,
     END,
     EOP
 } Token;
 
 typedef enum{
-    ADD_EXPRESSION,
+    ADD_EXPRESSION = 10,
     MOVE_EXPRESSION,
     GET_EXPRESSION,
     PUT_EXPRESSION,
@@ -35,6 +35,7 @@ struct Expression_tag{
         Expression_tag *block;
     } u;
     Expression_tag *next;
+    Expression_tag *prev;
 };
 typedef struct Expression_tag Expression;
 
@@ -43,6 +44,8 @@ typedef struct Expression_tag Expression;
  */
 __global__ void kernel(char *res, char *data);
 __device__ char brainfuck(char *source, int len);
-__device__ Token lex(char **source);
+__device__ Expression *parse(char **source, Token period);
+__device__ void addAtomExpression(Expression **head, ExpressionKind kind, int value);
+__device__ void addWhileExpression(Expression **head);
 
 #endif // BRAINFUCK_H_INCLUDED
