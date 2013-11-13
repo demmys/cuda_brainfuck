@@ -6,30 +6,37 @@
  * Enumerated type
  */
 typedef enum{
-    Inc = 1,
-    Dec,
-    Next,
-    Prev,
-    Put,
-    Get,
-    Begin,
-    End,
+    INC = 1,
+    DEC,
+    NEXT,
+    PREV,
+    PUT,
+    GET,
+    BEGIN,
+    END,
     EOP
 } Token;
 
 typedef enum{
-    Atom,
-    Block
-} StatementKind;
+    ADD_EXPRESSION,
+    MOVE_EXPRESSION,
+    GET_EXPRESSION,
+    PUT_EXPRESSION,
+    WHILE_EXPRESSION
+} ExpressionKind;
 
 /*
  * Structure
  */
-struct Statement_tag{
-    StatementKind kind;
-    Statement_tag *child;
+struct Expression_tag{
+    ExpressionKind kind;
+    union{
+        int value;
+        Expression_tag *block;
+    } u;
+    Expression_tag *next;
 };
-typedef struct Statement_tag Statement;
+typedef struct Expression_tag Expression;
 
 /*
  * Function prototype

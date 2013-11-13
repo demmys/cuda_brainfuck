@@ -18,24 +18,70 @@ __device__ char brainfuck(char *source, int len){
 __device__ Token lex(char **source){
     switch(*(*source)++){
         case '+':
-            return Inc;
+            return INC;
         case '-':
-            return Dec;
+            return DEC;
         case '>':
-            return Next;
+            return NEXT;
         case '<':
-            return Prev;
+            return PREV;
         case '.':
-            return Put;
+            return PUT;
         case ',':
-            return Get;
+            return GET;
         case '[':
-            return Begin;
+            return BEGIN;
         case ']':
-            return End;
+            return END;
         case '\0':
             return EOP;
         default:
             return lex(source);
     }
+}
+
+__device__ Expression *parse(char *source){
+    Token token;
+    Expression *ex, *parsing;
+
+    while((token = lex(source)) != EOP){
+        switch(token){
+            case INC:
+                break;
+            case DEC:
+                break;
+            case NEXT:
+                break;
+            case PREV:
+                break;
+            case PUT:
+                break;
+            case GET:
+                break;
+            case BEGIN:
+                break;
+            case END:
+        }
+    }
+}
+
+__device__ Expression *createComputeExpression(ExpressionKind kind, int value){
+    Expression *ex = malloc(sizeof(Expression));
+    ex->kind = kind;
+    ex->u.value = value;
+    ex->next = NULL;
+}
+
+__device__ Expression *createIOExpression(ExpressionKind kind){
+    Expression *ex = malloc(sizeof(Expression));
+    ex->kind = kind;
+    ex->u = NULL;
+    ex->next = NULL;
+}
+
+__device__ Expression *createWhileExpression(){
+    Expression *ex = malloc(sizeof(Expression));
+    ex->kind = WHILE_EXPRESSION;
+    ex->u.block = NULL;
+    ex->next = NULL;
 }
