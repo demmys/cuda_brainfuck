@@ -45,7 +45,6 @@ __device__ Expression *parse(char **source, Token period){
     Token token;
     Expression *head = NULL;
 
-    token = lex(source);
     while((token = lex(source)) != period){
         switch(token){
             case INC:
@@ -74,10 +73,10 @@ __device__ Expression *parse(char **source, Token period){
     return head;
 }
 
-__device__ void appendExpression(Expression **head, Expression *append){
-    (*head)->prev->next = append;
-    (*head)->prev->next->prev = (*head)->prev;
-    (*head)->prev = (*head)->prev->next;
+__device__ void appendExpression(Expression *head, Expression *append){
+    append->prev = head->prev;
+    append->prev->next = append;
+    head->prev = append;
 }
 
 /*
@@ -98,7 +97,7 @@ __device__ Expression *createAtomExpression(ExpressionKind kind, int value){
     return ex;
 }
 __device__ void addAtomExpression(Expression **head, ExpressionKind kind, int value){
-    if(!*head){
+    if(*head == NULL){
         *head = createAtomExpression(kind, value);
         (*head)->prev = *head;
         return;
@@ -106,7 +105,7 @@ __device__ void addAtomExpression(Expression **head, ExpressionKind kind, int va
     if((*head)->prev->kind == kind){
         (*head)->prev->u.value += value;
     } else{
-        appendExpression(head, createAtomExpression(kind, value));
+        appendExpression(*head, createAtomExpression(kind, value));
     }
 }
 
@@ -123,10 +122,10 @@ __device__ Expression *createWhileExpression(){
     return ex;
 }
 __device__ void addWhileExpression(Expression **head){
-    if(!*head){
+    if(*head == NULL){
         *head = createWhileExpression();
         (*head)->prev = *head;
         return;
     }
-    appendExpression(head, createWhileExpression());
+    appendExpression(*head, createWhileExpression());
 }
