@@ -61,9 +61,10 @@ typedef struct{
 /*
  * Function prototype
  */
+__host__ void host(char *res, char *data);
 __global__ void kernel(char *res, char *data);
-__device__ char brainfuck(char *source, int len);
-__device__ Expression *parse(char **source, Token period);
-__device__ int run(Expression *program);
+__host__ __device__ char brainfuck(char *source, int len);
+__host__ __device__ Expression *parse(char **source, Token period);
+__host__ __device__ int run(Expression *program);
 
 #endif // BRAINFUCK_H_INCLUDED

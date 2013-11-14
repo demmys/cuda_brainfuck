@@ -1,5 +1,19 @@
 #include "brainfuck.h"
 
+__host__ void host(char *res, char *data){
+    int thread_size = *data;
+    int phead;
+    int i, idx;
+
+    for(idx = 0; idx < thread_size; idx++){
+        phead = *data + 1;
+        for(i = 0; i < idx; i++){
+            phead += data[i + 1];
+        }
+        res[idx] = brainfuck(data + phead, data[idx + 1]);
+    }
+}
+
 __global__ void kernel(char *res, char *data){
     int idx = threadIdx.x;
     int phead = *data + 1;
@@ -11,11 +25,11 @@ __global__ void kernel(char *res, char *data){
     res[idx] = brainfuck(data + phead, data[idx + 1]);
 }
 
-__device__ char brainfuck(char *source, int len){
+__host__ __device__ char brainfuck(char *source, int len){
     return run(parse(&source, EOP));
 }
 
-__device__ void appendExpression(Expression *head, Expression *append){
+__host__ __device__ void appendExpression(Expression *head, Expression *append){
     append->prev = head->prev;
     append->prev->next = append;
     head->prev = append;
@@ -24,7 +38,7 @@ __device__ void appendExpression(Expression *head, Expression *append){
 /*
  * compile
  */
-__device__ Expression *createAtomExpression(ExpressionKind kind, int value){
+__host__ __device__ Expression *createAtomExpression(ExpressionKind kind, int value){
     Expression *ex = (Expression *)malloc(sizeof(Expression));
     ex->kind = kind;
     ex->u.value = value;
@@ -32,7 +46,7 @@ __device__ Expression *createAtomExpression(ExpressionKind kind, int value){
     ex->prev = NULL;
     return ex;
 }
-__device__ void addAtomExpression(Expression **head, ExpressionKind kind, int value){
+__host__ __device__ void addAtomExpression(Expression **head, ExpressionKind kind, int value){
     if(*head == NULL){
         *head = createAtomExpression(kind, value);
         (*head)->prev = *head;
@@ -45,7 +59,7 @@ __device__ void addAtomExpression(Expression **head, ExpressionKind kind, int va
     }
 }
 
-__device__ Expression *createWhileExpression(){
+__host__ __device__ Expression *createWhileExpression(){
     Expression *ex = (Expression *)malloc(sizeof(Expression));
     ex->kind = WHILE_EXPRESSION;
     ex->u.block = NULL;
@@ -53,7 +67,7 @@ __device__ Expression *createWhileExpression(){
     ex->prev = NULL;
     return ex;
 }
-__device__ void addWhileExpression(Expression **head){
+__host__ __device__ void addWhileExpression(Expression **head){
     if(*head == NULL){
         *head = createWhileExpression();
         (*head)->prev = *head;
@@ -62,7 +76,7 @@ __device__ void addWhileExpression(Expression **head){
     appendExpression(*head, createWhileExpression());
 }
 
-__device__ Token lex(char **source){
+__host__ __device__ Token lex(char **source){
     switch(*(*source)++){
         case '+':
             return INC;
@@ -87,7 +101,7 @@ __device__ Token lex(char **source){
     }
 }
 
-__device__ Expression *parse(char **source, Token period){
+__host__ __device__ Expression *parse(char **source, Token period){
     Token token;
     Expression *head = NULL;
 
@@ -125,7 +139,7 @@ __device__ Expression *parse(char **source, Token period){
 
 #define MEM_GRID_X 10
 #define DEFAULT_MEM_SIZE 20
-__device__ void reallocVMMemory(VirtualMachine *vm, int size){
+__host__ __device__ void reallocVMMemory(VirtualMachine *vm, int size){
     int i, j;
     int required_y = (size - 1) / MEM_GRID_X + 1;
     int **new_memory = (int **)malloc(sizeof(int *) * required_y);
@@ -144,7 +158,7 @@ __device__ void reallocVMMemory(VirtualMachine *vm, int size){
     vm->memory_size = size;
 }
 
-__device__ VirtualMachine *createVM(Expression *program){
+__host__ __device__ VirtualMachine *createVM(Expression *program){
     VirtualMachine *vm = (VirtualMachine *)malloc(sizeof(VirtualMachine));
 
     vm->program = program;
@@ -155,7 +169,7 @@ __device__ VirtualMachine *createVM(Expression *program){
     return vm;
 }
 
-__device__ void deleteExpression(Expression *ex){
+__host__ __device__ void deleteExpression(Expression *ex){
     while(ex->next){
         ex = ex->next;
         free(ex->prev);
@@ -163,7 +177,7 @@ __device__ void deleteExpression(Expression *ex){
     free(ex);
 }
 
-__device__ void deleteVM(VirtualMachine *vm){
+__host__ __device__ void deleteVM(VirtualMachine *vm){
     int i;
     int y = vm->memory_size / MEM_GRID_X;
     for(i = 0; i < y; i++){
@@ -173,28 +187,28 @@ __device__ void deleteVM(VirtualMachine *vm){
     free(vm);
 }
 
-__device__ int *seekCurrentVMMemory(VirtualMachine *vm){
+__host__ __device__ int *seekCurrentVMMemory(VirtualMachine *vm){
     int y = vm->header / MEM_GRID_X;
     int x = vm->header - MEM_GRID_X * y;
     return vm->memory[y] + x;
 }
 
-__device__ void addVMMemory(VirtualMachine *vm, int increment){
+__host__ __device__ void addVMMemory(VirtualMachine *vm, int increment){
     *seekCurrentVMMemory(vm) += increment;
 }
 
-__device__ void moveVMHeader(VirtualMachine *vm, int increment){
+__host__ __device__ void moveVMHeader(VirtualMachine *vm, int increment){
     vm->header += increment;
     if(vm->header >= vm->memory_size){
         reallocVMMemory(vm, vm->header + 1);
     }
 }
 
-__device__ int getVMValue(VirtualMachine *vm){
+__host__ __device__ int getVMValue(VirtualMachine *vm){
     return *seekCurrentVMMemory(vm);
 }
 
-__device__ int runVM(VirtualMachine *vm, int ret){
+__host__ __device__ int runVM(VirtualMachine *vm, int ret){
     Expression *jumped;
 
     while(vm->program != NULL){
@@ -206,9 +220,9 @@ __device__ int runVM(VirtualMachine *vm, int ret){
                 moveVMHeader(vm, vm->program->u.value);
                 break;
             case GET_EXPRESSION:
-                ret = getVMValue(vm);
                 break;
             case PUT_EXPRESSION:
+                ret = getVMValue(vm);
                 break;
             case WHILE_EXPRESSION:
                 if(getVMValue(vm) != 0){
@@ -225,10 +239,10 @@ __device__ int runVM(VirtualMachine *vm, int ret){
     return ret;
 }
 
-__device__ int run(Expression *program){
+__host__ __device__ int run(Expression *program){
     VirtualMachine *vm = createVM(program);
     int ret = runVM(vm, 0);
     deleteExpression(program);
     deleteVM(vm);
-    return getVMValue(vm);
+    return ret;
 }
