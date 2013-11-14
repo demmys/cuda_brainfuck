@@ -135,13 +135,6 @@ __device__ Expression *parse(char **source, Token period){
 /*
  * run
  */
-__device__ void deleteProgram(Expression *program){
-    while(program->next){
-        program = program->next;
-        free(program->prev);
-    }
-    free(program);
-}
 
 /*
 __device__ Memory *createMemory(){
@@ -167,14 +160,23 @@ __device__ VirtualMachine *createVirtualMachine(){
 */
 #define MEM_GRID_X 10
 #define DEFAULT_MEM_SIZE 20
-__device__ VirtualMachine *createVM(){
+__device__ VirtualMachine *createVM(Expression *program){
     int i, j;
     VirtualMachine *vm = malloc(sizeof(VirtualMachine));
 
+    vm->program = program;
     vm->header = 0;
     reallocVMMemory(vm, DEFAULT_MEM_SIZE);
 
     return vm;
+}
+
+__device__ void deleteExpression(Expression *ex){
+    while(ex->next){
+        ex = ex->next;
+        free(ex->prev);
+    }
+    free(ex);
 }
 
 __device__ void deleteVM(VirtualMachine *vm){
@@ -184,6 +186,7 @@ __device__ void deleteVM(VirtualMachine *vm){
         free(vm->memory[i])
     }
     free(vm->memory);
+    deleteExpression(vm->program);
     free(vm);
 }
 
@@ -226,27 +229,37 @@ __device__ int getVMValue(VirtualMachine *vm){
     return *seekCurrentVMMemory(vm);
 }
 
-__device__ char run(Expression *program){
-    char ret;
-    VirtualMachine *vm = createVM();
+__device__ int run(Expression *program){
+    return runVM(createVM(program), 0);
+}
 
-    while(program != NULL){
-        switch(program->kind){
+__device__ int runVM(VirtualMachine *vm, int ret){
+    Expression *jumped;
+
+    while(vm->program != NULL){
+        switch(vm->program->kind){
             case ADD_EXPRESSION:
-                addVMMemory(vm, program->u.value);
+                addVMMemory(vm, vm->program->u.value);
                 break;
             case MOVE_EXPRESSION:
-                moveVMHeader(vm, program->u.value);
+                moveVMHeader(vm, vm->program->u.value);
                 break;
             case GET_EXPRESSION:
+                ret = getVMValue(vm);
                 break;
             case PUT_EXPRESSION:
                 break;
             case WHILE_EXPRESSION:
+                if(getVMValue(vm) != 0){
+                    jumped = vm->program;
+                    vm->program = vm->program->u.block;
+                    ret = runVM(vm, ret);
+                    vm->program = jumped;
+                    continue;
+                }
         }
-        program = program->next;
+        vm->program = vm->program->next;
     }
 
-    deleteProgram(program);
     return ret;
 }

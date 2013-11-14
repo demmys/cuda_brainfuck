@@ -52,6 +52,7 @@ typedef struct{
 } VirtualMachine;
 */
 typedef struct{
+    Expression *program;
     int header;
     int memory_size;
     int *memory[];
