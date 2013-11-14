@@ -177,16 +177,26 @@ __device__ VirtualMachine *createVM(){
     return vm;
 }
 
+__device__ void deleteVM(VirtualMachine *vm){
+    int i;
+    int y = vm->memory_size / MEM_GRID_X + 1;
+    for(i = 0; i < y; i++){
+        free(vm->memory[i])
+    }
+    free(vm->memory);
+    free(vm);
+}
+
 __device__ void reallocVMMemory(VirtualMachine *vm, int size){
     int required_y = (size - 1) / MEM_GRID_X + 1;
     int *new_memory[] = malloc(sizeof(int *) * required_y);
 
     for(i = 0; i < required_y; i++){
-        new_memory[i] = malloc(sizeof(int) * MEM_GRID_X);
-        for(j = 0; j < MEM_GRID_X; j++){
-            if(vm->memory && vm->memory_size >= (i + 1) * (j + 1)){
-                new_memory[i][j] = vm->memory[i][j];
-            } else{
+        if(vm->memory && vm->memory_size >= (i + 1) * MEM_GRID_X){
+            new_memory[i] = vm->memory[i];
+        } else{
+            new_memory[i] = malloc(sizeof(int) * MEM_GRID_X);
+            for(j = 0; j < MEM_GRID_X; j++){
                 new_memory[i][j] = 0;
             }
         }
