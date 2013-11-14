@@ -15,15 +15,15 @@ __device__ char brainfuck(char *source, int len){
     return run(parse(&source, EOP));
 }
 
-/*
- * compile
- */
 __device__ void appendExpression(Expression *head, Expression *append){
     append->prev = head->prev;
     append->prev->next = append;
     head->prev = append;
 }
 
+/*
+ * compile
+ */
 /*
  * Atom expression
  * - INC
@@ -143,8 +143,100 @@ __device__ void deleteProgram(Expression *program){
     free(program);
 }
 
+/*
+__device__ Memory *createMemory(){
+    Memory *mem = malloc(sizeof(Memory));
+    mem->cell = 0;
+    mem->next = NULL;
+    mem->prev = NULL;
+    return mem;
+}
+
+__device__ void expandMemory(VirtualMachine *vm){
+    Memory *mem = createMemory();
+    mem->prev = vm->memory->prev;
+    vm->memory->prev->next = mem;
+    vm->memory->prev = mem;
+}
+
+__device__ VirtualMachine *createVirtualMachine(){
+    VirtualMachine *vm = malloc(sizeof(VirtualMachine));
+    vm->memory = createMemory();
+    vm->memory->prev = vm->memory;
+}
+*/
+#define MEM_GRID_X 10
+#define DEFAULT_MEM_SIZE 20
+__device__ VirtualMachine *createVM(){
+    int i, j;
+    VirtualMachine *vm = malloc(sizeof(VirtualMachine));
+
+    vm->header = 0;
+    reallocVMMemory(vm, DEFAULT_MEM_SIZE);
+
+    return vm;
+}
+
+__device__ void reallocVMMemory(VirtualMachine *vm, int size){
+    int required_y = (size - 1) / MEM_GRID_X + 1;
+    int *new_memory[] = malloc(sizeof(int *) * required_y);
+
+    for(i = 0; i < required_y; i++){
+        new_memory[i] = malloc(sizeof(int) * MEM_GRID_X);
+        for(j = 0; j < MEM_GRID_X; j++){
+            if(vm->memory && vm->memory_size >= (i + 1) * (j + 1)){
+                new_memory[i][j] = vm->memory[i][j];
+            } else{
+                new_memory[i][j] = 0;
+            }
+        }
+    }
+    vm->memory = new_memory;
+    vm->memory_size = size;
+}
+
+__device__ int *seekCurrentVMMemory(VirtualMachine *vm){
+    int y = vm->header / MEM_GRID_X;
+    int x = vm->header - MEM_GRID_X * y;
+    return vm->memory[y] + x;
+}
+
+__device__ void addVMMemory(VirtualMachine *vm, int increment){
+    *seekCurrentVMMemory(vm) += increment;
+}
+
+__device__ void moveVMHeader(VirtualMachine *vm, int increment){
+    vm->header += increment;
+    if(vm->header >= vm->memory_size){
+        reallocVMMemory(vm, header + 1);
+    }
+}
+
+__device__ int getVMValue(VirtualMachine *vm){
+    return *seekCurrentVMMemory(vm);
+}
+
 __device__ char run(Expression *program){
-    char ret = program->kind;
+    char ret;
+    VirtualMachine *vm = createVM();
+
+    while(program != NULL){
+        switch(program->kind){
+            case ADD_EXPRESSION:
+                addVMMemory(vm, program->u.value);
+                break;
+            case MOVE_EXPRESSION:
+                moveVMHeader(vm, program->u.value);
+                break;
+            case GET_EXPRESSION:
+                break;
+            case PUT_EXPRESSION:
+                break;
+            case WHILE_EXPRESSION:
+        }
+        program = program->next;
+    }
+
     deleteProgram(program);
     return ret;
 }

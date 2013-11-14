@@ -29,16 +29,33 @@ typedef enum{
 /*
  * Structure
  */
+typedef struct Expression_tag Expression;
 struct Expression_tag{
     ExpressionKind kind;
     union{
         int value;
-        Expression_tag *block;
+        Expression *block;
     } u;
-    Expression_tag *next;
-    Expression_tag *prev;
+    Expression *next;
+    Expression *prev;
 };
-typedef struct Expression_tag Expression;
+
+/*
+typedef struct Memory_tag Memory;
+struct Memory_tag{
+    int cell;
+    Memory *next;
+    Memory *prev;
+};
+typedef struct{
+    Memory *memory;
+} VirtualMachine;
+*/
+typedef struct{
+    int header;
+    int memory_size;
+    int *memory[];
+} VirtualMachine;
 
 /*
  * Function prototype
