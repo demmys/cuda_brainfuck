@@ -31,6 +31,7 @@ __host__ void host_brainfuck(char **program){
 
     pack_strings(&data, program, THREAD_SIZE);
     host(res, data);
+    free(data);
 
     puts(res);
 }
