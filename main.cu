@@ -4,7 +4,8 @@
 
 __host__ int main(int argc, char *argv[]){
     // Host
-    char *program[2] = { ">++++[<++++++++>-]<+.", ">++++[<++++++++>-]<+." };
+    //char *program[2] = { ">++++[<++++++++>-]<+.", ">++++[<++++++++>-]<+." };
+    char *program[2] = { "+.", "+." };
     char *data = (char *)malloc(sizeof(char) * 64);
     int data_len;
     char *res;
