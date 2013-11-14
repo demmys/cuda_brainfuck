@@ -24,15 +24,6 @@ __device__ void appendExpression(Expression *head, Expression *append){
 /*
  * compile
  */
-/*
- * Atom expression
- * - INC
- * - DEC
- * - NEXT
- * - PREV
- * - GET
- * - PUT
- */
 __device__ Expression *createAtomExpression(ExpressionKind kind, int value){
     Expression *ex = (Expression *)malloc(sizeof(Expression));
     ex->kind = kind;
@@ -54,10 +45,6 @@ __device__ void addAtomExpression(Expression **head, ExpressionKind kind, int va
     }
 }
 
-/*
- * While expression
- * - BEGIN
- */
 __device__ Expression *createWhileExpression(){
     Expression *ex = (Expression *)malloc(sizeof(Expression));
     ex->kind = WHILE_EXPRESSION;
@@ -136,28 +123,6 @@ __device__ Expression *parse(char **source, Token period){
  * run
  */
 
-/*
-__device__ Memory *createMemory(){
-    Memory *mem = malloc(sizeof(Memory));
-    mem->cell = 0;
-    mem->next = NULL;
-    mem->prev = NULL;
-    return mem;
-}
-
-__device__ void expandMemory(VirtualMachine *vm){
-    Memory *mem = createMemory();
-    mem->prev = vm->memory->prev;
-    vm->memory->prev->next = mem;
-    vm->memory->prev = mem;
-}
-
-__device__ VirtualMachine *createVirtualMachine(){
-    VirtualMachine *vm = malloc(sizeof(VirtualMachine));
-    vm->memory = createMemory();
-    vm->memory->prev = vm->memory;
-}
-*/
 #define MEM_GRID_X 10
 #define DEFAULT_MEM_SIZE 20
 __device__ void reallocVMMemory(VirtualMachine *vm, int size){
@@ -166,7 +131,7 @@ __device__ void reallocVMMemory(VirtualMachine *vm, int size){
     int **new_memory = (int **)malloc(sizeof(int *) * required_y);
 
     for(i = 0; i < required_y; i++){
-        if(vm->memory && vm->memory_size >= (i + 1) * MEM_GRID_X){
+        if(vm->memory != NULL && vm->memory_size >= (i + 1) * MEM_GRID_X){
             new_memory[i] = vm->memory[i];
         } else{
             new_memory[i] = (int *)malloc(sizeof(int) * MEM_GRID_X);
@@ -184,6 +149,7 @@ __device__ VirtualMachine *createVM(Expression *program){
 
     vm->program = program;
     vm->header = 0;
+    vm->memory = NULL;
     reallocVMMemory(vm, DEFAULT_MEM_SIZE);
 
     return vm;
@@ -199,12 +165,11 @@ __device__ void deleteExpression(Expression *ex){
 
 __device__ void deleteVM(VirtualMachine *vm){
     int i;
-    int y = vm->memory_size / MEM_GRID_X + 1;
+    int y = vm->memory_size / MEM_GRID_X;
     for(i = 0; i < y; i++){
         free(vm->memory[i]);
     }
     free(vm->memory);
-    deleteExpression(vm->program);
     free(vm);
 }
 
@@ -262,7 +227,8 @@ __device__ int runVM(VirtualMachine *vm, int ret){
 
 __device__ int run(Expression *program){
     VirtualMachine *vm = createVM(program);
-    //int ret = runVM(vm, 0);
-    //deleteVM(vm);
-    return 33;
+    int ret = runVM(vm, 0);
+    deleteExpression(program);
+    deleteVM(vm);
+    return getVMValue(vm);
 }
