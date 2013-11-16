@@ -1,5 +1,62 @@
 #include "transmit.h"
 
+__host__ Code *create_code(){
+    Code *code = (Code *)malloc(sizeof(Code));
+    code->next = NULL;
+    return code;
+}
+
+__host__ Source *create_source(){
+    Source *source = (Source *)malloc(sizeof(Source));
+    source->codes = create_code();
+    source->codes_len = 0;
+    source->next = NULL;
+    return source;
+}
+
+__host__ Source *get_strings(FILE *in){
+    Source *source = create_source();
+    Source *cur_source = source;
+    Code *code = cur_source->codes;
+    char c;
+    int i;
+
+    for(c = fgetc(in), i = 0; c != EOF; c = fgetc(in)){
+        if(c == '\n'){
+            cur_source->next = create_source();
+            cur_source = cur_source->next;
+            code = cur_source->code;
+        } else{
+            if(i == CODE_LENGTH){
+                code->next = create_code();
+                code = code->next;
+                i = 0;
+            }
+            code->code[i++] = c;
+            cur_source->codes_len++;
+        }
+    }
+    return source;
+}
+
+__host__ char *pack_strings(int *data_len, FILE *fp){
+    int c;
+    char line_count = 0;
+    char line_len = 0;
+    char *data = malloc(sizeof(char) * 512);
+
+    *data_len = 0;
+    while((c = fgetc(in)) != EOF){
+        if(c == '\n'){
+            line_count++;
+            line_len = 0;
+        } else{
+            *data_len++;
+            line_len++;
+        }
+    }
+}
+
 /*
  * [WARNING] String length must be shorter than 255.
  *
