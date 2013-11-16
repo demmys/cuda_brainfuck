@@ -48,19 +48,11 @@ __host__ void error(char *format, ...){
 
 __host__ int main(int argc, char *argv[]){
     FILE *in;
-    int i = 0;
-    int len = 20;
-    char **source = (char **)malloc(sizeof(char *) * len);
 
-    in = argc > 1 ? fopen(argv[1], "r") : stdin;
+    in = argc > 1 ? fopen(argv[argc], "r") : stdin;
     if(!in){
         error("\"%s\": no such file.\n", argv[1]);
     }
-    do{
-        source[i] = (char *)malloc(sizeof(char) * 256);
-        fgets(source[i++], 255, in);
-        len++;
-    } while(line != EOF);
     fclose(in);
 
     /*
@@ -81,8 +73,8 @@ __host__ int main(int argc, char *argv[]){
         "."
     };
     */
-    kernel_brainfuck(program);
-    host_brainfuck(program);
+    //kernel_brainfuck(program);
+    //host_brainfuck(program);
 
     return 0;
 }

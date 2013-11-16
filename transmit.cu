@@ -25,7 +25,7 @@ __host__ Source *get_strings(FILE *in){
         if(c == '\n'){
             cur_source->next = create_source();
             cur_source = cur_source->next;
-            code = cur_source->code;
+            code = cur_source->codes;
         } else{
             if(i == CODE_LENGTH){
                 code->next = create_code();
@@ -39,21 +39,19 @@ __host__ Source *get_strings(FILE *in){
     return source;
 }
 
-__host__ char *pack_strings(int *data_len, FILE *fp){
-    int c;
-    char line_count = 0;
-    char line_len = 0;
-    char *data = malloc(sizeof(char) * 512);
+__host__ void deleteSource(Source *source){
+    Source *next;
+    Code *next_code;
 
-    *data_len = 0;
-    while((c = fgetc(in)) != EOF){
-        if(c == '\n'){
-            line_count++;
-            line_len = 0;
-        } else{
-            *data_len++;
-            line_len++;
+    while(source){
+        next = source->next;
+        while(source->code){
+            next_code = source->code->next;
+            free(source->code);
+            source->code = next_code;
         }
+        free(source);
+        source = next;
     }
 }
 
