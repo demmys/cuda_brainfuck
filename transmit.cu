@@ -23,9 +23,11 @@ __host__ Source *get_strings(FILE *in){
 
     for(c = fgetc(in), i = 0; c != EOF; c = fgetc(in)){
         if(c == '\n'){
-            cur_source->next = create_source();
-            cur_source = cur_source->next;
-            code = cur_source->codes;
+            if(cur_source->codes_len > 0){
+                cur_source->next = create_source();
+                cur_source = cur_source->next;
+                code = cur_source->codes;
+            }
         } else{
             if(i == CODE_LENGTH){
                 code->next = create_code();
@@ -36,6 +38,7 @@ __host__ Source *get_strings(FILE *in){
             cur_source->codes_len++;
         }
     }
+    code->code[i] = '\0';
     return source;
 }
 
@@ -45,10 +48,10 @@ __host__ void deleteSource(Source *source){
 
     while(source){
         next = source->next;
-        while(source->code){
-            next_code = source->code->next;
-            free(source->code);
-            source->code = next_code;
+        while(source->codes){
+            next_code = source->codes->next;
+            free(source->codes);
+            source->codes = next_code;
         }
         free(source);
         source = next;
@@ -57,28 +60,37 @@ __host__ void deleteSource(Source *source){
 
 /*
  * [WARNING] String length must be shorter than 255.
- *
- * @param::dist   data : *(char<fold(+, map(length, strs)) + len>)
- * @param::source strs : { char[], char[], ... }
- * @param::source len  : length(strs)
  */
-__host__ int pack_strings(char *data[], char *strs[], char len){
-    char i, j;
+__host__ int pack_strings(char **data, Source *source){
+    Source *source_tmp;
+    int source_len = 0, data_len = 0;
+    char i;
     char *strhead, *lenhead;
-    int data_len;
 
-    **data = len;
+    source_tmp = source;
+    while(source){
+        source_len++;
+        data_len += source->codes_len;
+        source = source->next;
+    }
+    source = source_tmp;
+    data_len += source_len * 2 + 1;
+
+    *data = (char *)malloc(sizeof(char) * data_len);
+    **data = source_len;
     lenhead = *data + 1;
-    strhead = lenhead + len;
-    data_len = len + 1;
+    strhead = lenhead + source_len;
 
-    for(i = 0; i < len; i++){
-        for(j = 0; strs[i][j]; j++){
-            *strhead++ = strs[i][j];
+    while(source){
+        *lenhead++ = source->codes_len;
+        while(source->codes){
+            for(i = 0; i < CODE_LENGTH && source->codes->code[i]; i++){
+                *strhead++ = source->codes->code[i];
+            }
+            *strhead++ = '\0';
+            source->codes = source->codes->next;
         }
-        *strhead++ = '\0';
-        *lenhead++ = j + 1;
-        data_len += j + 1;
+        source = source->next;
     }
 
     return data_len;
