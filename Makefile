@@ -2,7 +2,7 @@ NVCC = nvcc
 CFLAGS = -gencode=arch=compute_20,code=\"sm_20,compute_20\" -g
 
 TARGET = gpubf
-OBJS = transmit.o brainfuck.o main.o
+OBJS = print.o transmit.o brainfuck.o main.o
 
 .SUFFIXES: .cu .o
 .PHONY: all run clean clear
