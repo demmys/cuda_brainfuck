@@ -13,6 +13,12 @@ __host__ void error(char *format, ...){
 
 __host__ void help(void){
     puts(usage);
+    puts("\noptions:");
+    puts("\t-c\tRun same program on 1 core 1 thread CPU.");
+    puts("\t-h\tDisplay available options and exit.");
+    puts("\t-m\tWhen use with -t option, display real run time includes memory copy time between host and device after the execution.");
+    puts("\t-t\tDisplay real run time after the execution.");
+    puts("\t-v\tDisplay product version and exit.");
     exit(EXIT_SUCCESS);
 }
 
