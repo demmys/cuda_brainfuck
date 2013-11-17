@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define CODE_LENGTH 256
+#define CODE_LENGTH 64
 
 typedef struct Code_tag Code;
 struct Code_tag{
@@ -19,7 +19,7 @@ struct Source_tag{
 };
 
 __host__ Source *get_strings(FILE *in);
-int pack_strings(char *data[], char *strs[], char len);
-void transmit_data(char **data_d, char *data, int len);
+__host__ int pack_strings(char **data, Source *source);
+__host__ void transmit_data(char **data_d, char *data, int len);
 
 #endif // TRANSMIT_H_INCLUDED

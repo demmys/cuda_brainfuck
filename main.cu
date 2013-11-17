@@ -4,21 +4,17 @@
 
 #define THREAD_SIZE 14
 
-__host__ void kernel_brainfuck(char **program){
+__host__ void kernel_brainfuck(char *source, int source_len){
     // Host
-    char *data = (char *)malloc(sizeof(char) * 512);
-    int data_len;
     char res[THREAD_SIZE];
     // Device
-    char *data_d, *res_d;
+    char *source_d, *res_d;
 
-    data_len = pack_strings(&data, program, THREAD_SIZE);
-    transmit_data(&data_d, data, data_len);
-    free(data);
+    transmit_data(&source_d, source, source_len);
 
     cudaMalloc(&res_d, sizeof(char) * THREAD_SIZE);
-    kernel<<<1, THREAD_SIZE>>>(res_d, data_d);
-    cudaFree(data_d);
+    kernel<<<1, THREAD_SIZE>>>(res_d, source_d);
+    cudaFree(source_d);
 
     cudaMemcpy(res, res_d, sizeof(char) * THREAD_SIZE, cudaMemcpyDeviceToHost);
     cudaFree(res_d);
@@ -26,14 +22,9 @@ __host__ void kernel_brainfuck(char **program){
     puts(res);
 }
 
-__host__ void host_brainfuck(char **program){
-    char *data = (char *)malloc(sizeof(char) * 512);
+__host__ void host_brainfuck(char *source){
     char res[THREAD_SIZE];
-
-    pack_strings(&data, program, THREAD_SIZE);
-    host(res, data);
-    free(data);
-
+    host(res, source);
     puts(res);
 }
 
@@ -48,33 +39,45 @@ __host__ void error(char *format, ...){
 
 __host__ int main(int argc, char *argv[]){
     FILE *in;
+    Source *source;
+    char *packed_source;
+    int packed_source_len;
 
-    in = argc > 1 ? fopen(argv[argc], "r") : stdin;
-    if(!in){
-        error("\"%s\": no such file.\n", argv[1]);
+    in = (argc > 1) ? fopen(argv[argc - 1], "r") : stdin;
+    if(in == NULL){
+        error("\"%s\": no such file.\n", argv[argc - 1]);
     }
-    fclose(in);
 
-    /*
-    char *program[THREAD_SIZE] = {
-        ">++++++++[<+++++++++>-]<.",
-        ">++++++++++[<++++++++++>-]<+.",
-        ">++++++++++[<+++++++++++>-]<--.",
-        ">++++++++++[<+++++++++++>-]<--.",
-        ">++++++++++[<+++++++++++>-]<+.",
-        ">++++[<+++++++++++>-]<.",
-        ">++++[<++++++++>-]<.",
-        ">+++++++++[<++++++++++>-]<---.",
-        ">++++++++++[<+++++++++++>-]<+.",
-        ">++++++++++[<+++++++++++>-]<++++.",
-        ">++++++++++[<+++++++++++>-]<--.",
-        ">++++++++++[<++++++++++>-]<.",
-        ">++++[<++++++++>-]<+.",
-        "."
-    };
-    */
-    //kernel_brainfuck(program);
-    //host_brainfuck(program);
+    source = get_strings(in);
+    Source *source_tmp;
+    Code *code;
+    puts("\n");
+    source_tmp = source;
+    while(source){
+        code = source->codes;
+        while(code){
+            puts(code->code);
+            code = code->next;
+        }
+        printf("%d\n", source->codes_len);
+        source = source->next;
+    }
+    source = source_tmp;
+    packed_source_len = pack_strings(&packed_source, source);
+    printf("\n\n%d\n\n", packed_source_len);
+    int i;
+    for(i = 0; i < packed_source_len; i++){
+        if(packed_source[i] < 33){
+            printf("%d ", packed_source[i]);
+        } else{
+            printf("%c", packed_source[i]);
+        }
+    }
+    puts("");
+    kernel_brainfuck(packed_source, packed_source_len);
+    host_brainfuck(packed_source);
+
+    fclose(in);
 
     return 0;
 }

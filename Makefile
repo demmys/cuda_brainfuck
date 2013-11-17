@@ -1,5 +1,5 @@
 NVCC = nvcc
-CFLAGS = -gencode=arch=compute_20,code=\"sm_20,compute_20\"
+CFLAGS = -gencode=arch=compute_20,code=\"sm_20,compute_20\" -g
 
 TARGET = gpubf
 OBJS = transmit.o brainfuck.o main.o
