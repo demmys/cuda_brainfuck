@@ -50,7 +50,6 @@ __host__ Source *get_strings(FILE *in){
             }
         } else{
             if(i == CODE_LENGTH){
-                puts("overflow. malloc next.");
                 code->next = create_code();
                 code = code->next;
                 i = 0;
@@ -59,7 +58,10 @@ __host__ Source *get_strings(FILE *in){
             cur_source->codes_len++;
         }
     }
-    if(cur_source->codes_len == 0 && prev_source != NULL){
+    if(cur_source->codes_len == 0){
+        if(prev_source == NULL){
+            return NULL;
+        }
         prev_source->next = NULL;
         deleteSource(cur_source);
     }

@@ -1,6 +1,6 @@
 #include "print.h"
 
-const char *usage = "usage: gpubf [-chtv] [file ...]";
+const char *usage = "USAGE: gpubf [-cdhmntv] [file ...]";
 
 __host__ void error(char *format, ...){
     va_list args;
@@ -13,12 +13,13 @@ __host__ void error(char *format, ...){
 
 __host__ void help(void){
     puts(usage);
-    puts("\noptions:");
-    puts("\t-c\tRun same program on 1 core 1 thread CPU.");
-    puts("\t-d\tDisplay result of execution in digit.");
+    puts("\nOPTIONS:");
+    puts("\t-c\tExecute the same program on CPU(1 core, 1 thread).");
+    puts("\t-d\tSet the delimiter of the source code.");
     puts("\t-h\tDisplay available options and exit.");
-    puts("\t-m\tWhen use with -t option, display real run time includes memory copy time between host and device after the execution.");
-    puts("\t-t\tDisplay real run time after the execution.");
+    puts("\t-m\tDisplay execution time includes copying memory among host and device. This option turns on the -t option.");
+    puts("\t-n\tDisplay the result of execution with a number.");
+    puts("\t-t\tDisplay execution time with the result.");
     puts("\t-v\tDisplay product version and exit.");
     exit(EXIT_SUCCESS);
 }

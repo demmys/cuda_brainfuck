@@ -65,22 +65,21 @@ __host__ int main(int argc, char *argv[]){
     int i;
 
     opterr = 0;
-    while((c = getopt(argc, argv, "cdhmptv")) != -1){
+    while((c = getopt(argc, argv, "cdhmntv")) != -1){
         switch(c){
             case 'c':
                 flags = flags | F_CPU;
                 break;
             case 'd':
-                flags = flags | F_DIGITAL;
+                puts("delimiter option is not implemented yet.");
                 break;
             case 'h':
                 help();
+            case 'n':
+                flags = flags | F_DIGITAL;
+                break;
             case 'm':
                 flags = flags | F_MEMCPY_TIME;
-                break;
-            case 'p':
-                puts("option partition is not implemented yet.");
-                break;
             case 't':
                 flags = flags | F_TIME;
                 break;
@@ -98,7 +97,9 @@ __host__ int main(int argc, char *argv[]){
         error("There is no file named \"%s\".\n", argv[0]);
     }
 
-    source = get_strings(in);
+    if((source = get_strings(in)) == NULL){
+        error("Nothing was inputted.\n");
+    }
     fclose(in);
     // TEST >>>>>
     /*
@@ -121,8 +122,7 @@ __host__ int main(int argc, char *argv[]){
     packed_source_len = pack_strings(&packed_source, source);
     // TEST >>>>>
     /*
-    printf("\n\n%d\n\n", packed_source_len);
-    int i;
+    printf("\n\npacked_source_len: %d\n\npacked_source: ", packed_source_len);
     for(i = 0; i < packed_source_len; i++){
         if(packed_source[i] < 33){
             printf("%d ", packed_source[i]);
@@ -149,19 +149,8 @@ __host__ int main(int argc, char *argv[]){
     if(flags & F_DIGITAL){
         puts("");
     }
-    // TEST >>>>>
-    /*
-    for(i = 0; i < *packed_source; i++){
-        if(res[i] < 33){
-            printf("%d ", res[i]);
-        } else{
-            printf("%c", res[i]);
-        }
-    }
-    */
-    // <<<<< TEST
     if(flags & F_TIME){
-        printf("\nReal run time: %10.6f (sec)\n", get_stop_watch_time());
+        printf("\nExecution time: %10.6f (sec)\n", get_stop_watch_time());
     }
 
     return EXIT_SUCCESS;
