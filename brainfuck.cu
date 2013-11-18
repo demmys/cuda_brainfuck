@@ -132,6 +132,10 @@ __host__ __device__ Expression *parse(char **source, Token period){
             case BEGIN:
                 addWhileExpression(&head);
                 head->prev->u.block = parse(source, END);
+                break;
+            case END:
+            case EOP:
+                return NULL;
         }
     }
     return head;
@@ -224,6 +228,7 @@ __host__ __device__ int runVM(VirtualMachine *vm, int ret){
                 moveVMHeader(vm, vm->program->u.value);
                 break;
             case GET_EXPRESSION:
+                // TODO
                 break;
             case PUT_EXPRESSION:
                 ret = getVMValue(vm);
