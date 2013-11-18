@@ -30,7 +30,7 @@ __host__ void deleteSource(Source *source){
     }
 }
 
-__host__ Source *get_strings(FILE *in){
+__host__ Source *get_strings(FILE *in, char delimiter){
     Source *source = create_source();
     Source *cur_source = source;
     Source *prev_source = NULL;
@@ -39,7 +39,7 @@ __host__ Source *get_strings(FILE *in){
     char c;
 
     for(c = fgetc(in); c != EOF; c = fgetc(in)){
-        if(c == '\n'){
+        if(c == delimiter){
             if(cur_source->codes_len > 0){
                 code->code[i] = '\0';
                 cur_source->next = create_source();

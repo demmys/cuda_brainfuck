@@ -26,7 +26,11 @@ __global__ void kernel(char *res, char *data){
 }
 
 __host__ __device__ char brainfuck(char *source, int len){
-    return run(parse(&source, EOP));
+    Expression *ex = parse(&source, EOP);
+    if(ex == NULL){
+        return '\0';
+    }
+    return run(ex);
 }
 
 __host__ __device__ void appendExpression(Expression *head, Expression *append){

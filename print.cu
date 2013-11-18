@@ -1,6 +1,6 @@
 #include "print.h"
 
-const char *usage = "USAGE: gpubf [-cdhmntv] [file ...]";
+const char *usage = "USAGE: gpubf [-chmntv] [-d character] [file ...]";
 
 __host__ void error(char *format, ...){
     va_list args;
@@ -15,12 +15,15 @@ __host__ void help(void){
     puts(usage);
     puts("\nOPTIONS:");
     puts("\t-c\tExecute the same program on CPU(1 core, 1 thread).");
-    puts("\t-d\tSet the delimiter of the source code.");
     puts("\t-h\tDisplay available options and exit.");
-    puts("\t-m\tDisplay execution time includes copying memory among host and device. This option turns on the -t option.");
+    puts("\t-m\tDisplay execution time includes copying memory among host and device.");
+    puts("\t\tThis option turns on the -t option.");
     puts("\t-n\tDisplay the result of execution with a number.");
     puts("\t-t\tDisplay execution time with the result.");
     puts("\t-v\tDisplay product version and exit.");
+    puts("\t-d character");
+    puts("\t\tSet the delimiter of the source code");
+    puts("\t\t(default delimiter is LF, and EOF is always taken as the delimiter).");
     exit(EXIT_SUCCESS);
 }
 

@@ -18,7 +18,7 @@ struct Source_tag{
     Source *next;
 };
 
-__host__ Source *get_strings(FILE *in);
+__host__ Source *get_strings(FILE *in, char delimiter);
 __host__ int pack_strings(char **data, Source *source);
 __host__ void transmit_data(char **data_d, char *data, int len);
 

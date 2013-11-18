@@ -55,23 +55,24 @@ __host__ void host_brainfuck(char **res, char *source){
 }
 
 __host__ int main(int argc, char *argv[]){
-    extern int optind, optopt;
-    extern int opterr;
+    extern char *optarg;
+    extern int optind, optopt, opterr;
     FILE *in;
     char c;
     Source *source;
     char *packed_source;
     int packed_source_len;
     int i;
+    char delimiter = '\n';
 
     opterr = 0;
-    while((c = getopt(argc, argv, "cdhmntv")) != -1){
+    while((c = getopt(argc, argv, ":chmntvd:")) != -1){
         switch(c){
             case 'c':
                 flags = flags | F_CPU;
                 break;
             case 'd':
-                puts("delimiter option is not implemented yet.");
+                delimiter = *optarg;
                 break;
             case 'h':
                 help();
@@ -85,8 +86,10 @@ __host__ int main(int argc, char *argv[]){
                 break;
             case 'v':
                 version();
+            case ':':
+                error("Option \"%c\" needs argument.\n%s\n", optopt, usage);
             default:
-                error("illigal option \"%c\".\n%s\n", optopt, usage);
+                error("Illigal option \"%c\".\n%s\n", optopt, usage);
         }
     }
     argc -= optind;
@@ -97,7 +100,7 @@ __host__ int main(int argc, char *argv[]){
         error("There is no file named \"%s\".\n", argv[0]);
     }
 
-    if((source = get_strings(in)) == NULL){
+    if((source = get_strings(in, delimiter)) == NULL){
         error("Nothing was inputted.\n");
     }
     fclose(in);
@@ -125,7 +128,7 @@ __host__ int main(int argc, char *argv[]){
     printf("\n\npacked_source_len: %d\n\npacked_source: ", packed_source_len);
     for(i = 0; i < packed_source_len; i++){
         if(packed_source[i] < 33){
-            printf("%d ", packed_source[i]);
+            printf("(%d)", packed_source[i]);
         } else{
             printf("%c", packed_source[i]);
         }
