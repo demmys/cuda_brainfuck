@@ -1,21 +1,16 @@
 #include "brainfuck.h"
 
-__host__ void host(char *res, char *data){
-    int thread_size = *data;
-    int phead;
-    int i, idx;
-
-    for(idx = 0; idx < thread_size; idx++){
-        phead = *data + 1;
-        for(i = 0; i < idx; i++){
-            phead += data[i + 1];
-        }
-        res[idx] = brainfuck(data + phead, data[idx + 1]);
-    }
+__host__ void *host(void *args){
+    thread(((ThreadArgs *)args)->res, ((ThreadArgs *)args)->data, ((ThreadArgs *)args)->idx);
+    delete((ThreadArgs *)args);
+    return (void *)NULL;
 }
 
 __global__ void kernel(char *res, char *data){
-    int idx = threadIdx.x;
+    thread(res, data, threadIdx.x);
+}
+
+__host__ __device__ void thread(char *res, char *data, int idx){
     int phead = *data + 1;
     int i;
 

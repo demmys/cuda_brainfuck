@@ -45,10 +45,28 @@ __host__ void kernel_brainfuck(char **res, char *source, int source_len){
 }
 
 __host__ void host_brainfuck(char **res, char *source){
+    int thread_size = *source;
+    int idx;
+    ThreadArgs *args;
+    pthread_t *threads;
+
     if(flags & F_TIME){
         stop_watch_start();
     }
-    host(*res, source);
+
+    threads = (pthread_t *)malloc(sizeof(pthread_t) * thread_size);
+    for(idx = 0; idx < thread_size; idx++){
+        args = (ThreadArgs *)malloc(sizeof(ThreadArgs));
+        args->res = *res;
+        args->data = source;
+        args->idx = idx;
+        pthread_create(&threads[idx], NULL, host, (void *)args);
+    }
+    for(idx = 0; idx < thread_size; idx++){
+        pthread_join(threads[idx], NULL);
+    }
+    delete(threads);
+
     if(flags & F_TIME){
         stop_watch_stop();
     }
