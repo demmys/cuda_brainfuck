@@ -32,8 +32,8 @@ typedef enum{
  * Structure
  */
 typedef struct{
-    char *res;
-    char *data;
+    int *res;
+    int *data;
     int idx;
 } ThreadArgs;
 
@@ -59,10 +59,10 @@ typedef struct{
  * Function prototype
  */
 __host__ void *host(void *args);
-__global__ void kernel(char *res, char *data);
-__host__ __device__ void thread(char *res, char *data, int idx);
-__host__ __device__ char brainfuck(char *source, int len);
-__host__ __device__ Expression *parse(char **source, Token period);
+__global__ void kernel(int *res, int *data);
+__host__ __device__ void thread(int *res, int *data, int idx);
+__host__ __device__ int brainfuck(int *source, int len);
+__host__ __device__ Expression *parse(int **source, Token period);
 __host__ __device__ int run(Expression *program);
 
 #endif // BRAINFUCK_H_INCLUDED

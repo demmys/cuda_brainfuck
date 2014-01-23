@@ -71,11 +71,11 @@ __host__ Source *get_strings(FILE *in, char delimiter){
 /*
  * [WARNING] String length must be shorter than 255.
  */
-__host__ int pack_strings(char **data, Source *source){
+__host__ int pack_strings(int **data, Source *source){
     Source *cur_source;
     int source_len = 0, data_len = 0;
-    char i;
-    char *strhead, *lenhead;
+    int i;
+    int *strhead, *lenhead;
 
     cur_source = source;
     while(cur_source){
@@ -85,7 +85,7 @@ __host__ int pack_strings(char **data, Source *source){
     }
     data_len += source_len * 2 + 1;
 
-    *data = (char *)malloc(sizeof(char) * data_len);
+    *data = (int *)malloc(sizeof(int) * data_len);
     **data = source_len;
     lenhead = *data + 1;
     strhead = lenhead + source_len;
@@ -105,7 +105,7 @@ __host__ int pack_strings(char **data, Source *source){
     return data_len;
 }
 
-__host__ void transmit_data(char **data_d, char *data, int len){
-    cudaMalloc(data_d, sizeof(char) * len);
-    cudaMemcpy(*data_d, data, sizeof(char) * len, cudaMemcpyHostToDevice);
+__host__ void transmit_data(int **data_d, int *data, int len){
+    cudaMalloc(data_d, sizeof(int) * len);
+    cudaMemcpy(*data_d, data, sizeof(int) * len, cudaMemcpyHostToDevice);
 }

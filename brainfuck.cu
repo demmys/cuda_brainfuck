@@ -6,11 +6,11 @@ __host__ void *host(void *args){
     return (void *)NULL;
 }
 
-__global__ void kernel(char *res, char *data){
+__global__ void kernel(int *res, int *data){
     thread(res, data, threadIdx.x);
 }
 
-__host__ __device__ void thread(char *res, char *data, int idx){
+__host__ __device__ void thread(int *res, int *data, int idx){
     int phead = *data + 1;
     int i;
 
@@ -20,10 +20,10 @@ __host__ __device__ void thread(char *res, char *data, int idx){
     res[idx] = brainfuck(data + phead, data[idx + 1]);
 }
 
-__host__ __device__ char brainfuck(char *source, int len){
+__host__ __device__ int brainfuck(int *source, int len){
     Expression *ex = parse(&source, EOP);
     if(ex == NULL){
-        return '\0';
+        return (int)'\0';
     }
     return run(ex);
 }
@@ -75,8 +75,8 @@ __host__ __device__ void addWhileExpression(Expression **head){
     appendExpression(*head, createWhileExpression());
 }
 
-__host__ __device__ Token lex(char **source){
-    switch(*(*source)++){
+__host__ __device__ Token lex(int **source){
+    switch((char)*(*source)++){
         case '+':
             return INC;
         case '-':
@@ -100,7 +100,7 @@ __host__ __device__ Token lex(char **source){
     }
 }
 
-__host__ __device__ Expression *parse(char **source, Token period){
+__host__ __device__ Expression *parse(int **source, Token period){
     Token token;
     Expression *head = NULL;
 

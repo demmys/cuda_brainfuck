@@ -19,7 +19,7 @@ struct Source_tag{
 };
 
 __host__ Source *get_strings(FILE *in, char delimiter);
-__host__ int pack_strings(char **data, Source *source);
-__host__ void transmit_data(char **data_d, char *data, int len);
+__host__ int pack_strings(int **data, Source *source);
+__host__ void transmit_data(int **data_d, int *data, int len);
 
 #endif // TRANSMIT_H_INCLUDED

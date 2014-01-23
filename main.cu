@@ -19,15 +19,15 @@ __host__ int has_flags(char *mask_char, ...){
     return 1;
 }
 
-__host__ void kernel_brainfuck(char **res, char *source, int source_len){
-    char *source_d, *res_d;
+__host__ void kernel_brainfuck(int **res, int *source, int source_len){
+    int *source_d, *res_d;
 
     if(has_flags("11", F_TIME, F_MEMCPY_TIME)){
         stop_watch_start();
     }
     transmit_data(&source_d, source, source_len);
 
-    cudaMalloc(&res_d, sizeof(char) * *source);
+    cudaMalloc(&res_d, sizeof(int) * *source);
     if(has_flags("10", F_TIME, F_MEMCPY_TIME)){
         stop_watch_start();
     }
@@ -37,14 +37,14 @@ __host__ void kernel_brainfuck(char **res, char *source, int source_len){
     }
     cudaFree(source_d);
 
-    cudaMemcpy(*res, res_d, sizeof(char) * *source, cudaMemcpyDeviceToHost);
+    cudaMemcpy(*res, res_d, sizeof(int) * *source, cudaMemcpyDeviceToHost);
     cudaFree(res_d);
     if(has_flags("11", F_TIME, F_MEMCPY_TIME)){
         stop_watch_stop();
     }
 }
 
-__host__ void host_brainfuck(char **res, char *source){
+__host__ void host_brainfuck(int **res, int *source){
     int thread_size = *source;
     int idx;
     ThreadArgs *args;
@@ -78,7 +78,7 @@ __host__ int main(int argc, char *argv[]){
     FILE *in;
     char c;
     Source *source;
-    char *packed_source;
+    int *packed_source, *res;
     int packed_source_len;
     int i;
     char delimiter = '\n';
@@ -145,7 +145,7 @@ __host__ int main(int argc, char *argv[]){
     /*
     printf("\n\npacked_source_len: %d\n\npacked_source: ", packed_source_len);
     for(i = 0; i < packed_source_len; i++){
-        if(packed_source[i] < 33){
+        if(packed_source[i] < 33 || packed_source[i] > 127){
             printf("(%d)", packed_source[i]);
         } else{
             printf("%c", packed_source[i]);
@@ -154,7 +154,7 @@ __host__ int main(int argc, char *argv[]){
     puts("");
     */
     // <<<<< TEST
-    char *res = (char *)malloc(sizeof(char) * *packed_source);
+    res = (int *)malloc(sizeof(int) * *packed_source);
     if(flags & F_CPU){
         host_brainfuck(&res, packed_source);
     } else{
