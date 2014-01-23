@@ -2,7 +2,7 @@
 
 __host__ void *host(void *args){
     thread(((ThreadArgs *)args)->res, ((ThreadArgs *)args)->data, ((ThreadArgs *)args)->idx);
-    delete((ThreadArgs *)args);
+    free((ThreadArgs *)args);
     return (void *)NULL;
 }
 
