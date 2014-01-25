@@ -7,7 +7,8 @@ __host__ void *host(void *args){
 }
 
 __global__ void kernel(int *res, int *data){
-    thread(res, data, threadIdx.x);
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    thread(res, data, idx);
 }
 
 __host__ __device__ void thread(int *res, int *data, int idx){
@@ -76,27 +77,27 @@ __host__ __device__ void addWhileExpression(Expression **head){
 }
 
 __host__ __device__ Token lex(int **source){
-    switch((char)*(*source)++){
-        case '+':
-            return INC;
-        case '-':
-            return DEC;
-        case '>':
-            return NEXT;
-        case '<':
-            return PREV;
-        case '.':
-            return PUT;
-        case ',':
-            return GET;
-        case '[':
-            return BEGIN;
-        case ']':
-            return END;
-        case '\0':
-            return EOP;
-        default:
-            return lex(source);
+    while(1){
+        switch((char)*(*source)++){
+            case '+':
+                return INC;
+            case '-':
+                return DEC;
+            case '>':
+                return NEXT;
+            case '<':
+                return PREV;
+            case '.':
+                return PUT;
+            case ',':
+                return GET;
+            case '[':
+                return BEGIN;
+            case ']':
+                return END;
+            case '\0':
+                return EOP;
+        }
     }
 }
 

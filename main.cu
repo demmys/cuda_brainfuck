@@ -65,7 +65,7 @@ __host__ void host_brainfuck(int **res, int *source){
     for(idx = 0; idx < thread_size; idx++){
         pthread_join(threads[idx], NULL);
     }
-    delete(threads);
+    free(threads);
 
     if(flags & F_TIME){
         stop_watch_stop();
