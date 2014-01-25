@@ -68,9 +68,6 @@ __host__ Source *get_strings(FILE *in, char delimiter){
     return source;
 }
 
-/*
- * [WARNING] String length must be shorter than 255.
- */
 __host__ int pack_strings(int **data, Source *source){
     Source *cur_source;
     int source_len = 0, data_len = 0;
@@ -96,9 +93,9 @@ __host__ int pack_strings(int **data, Source *source){
             for(i = 0; i < CODE_LENGTH && source->codes->code[i]; i++){
                 *strhead++ = source->codes->code[i];
             }
-            *strhead++ = '\0';
             source->codes = source->codes->next;
         }
+        *strhead++ = '\0';
         source = source->next;
     }
 
