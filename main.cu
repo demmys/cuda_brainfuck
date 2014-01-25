@@ -32,6 +32,7 @@ __host__ void kernel_brainfuck(int **res, int *source, int source_len){
         stop_watch_start();
     }
     kernel<<<1, *source>>>(res_d, source_d);
+    cudaThreadSynchronize();
     if(has_flags("10", F_TIME, F_MEMCPY_TIME)){
         stop_watch_stop();
     }
