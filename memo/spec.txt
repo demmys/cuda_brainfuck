@@ -1,0 +1,20 @@
+Device :: Grid
+1
+
+Multiprocessers
+4
+
+CUDA Core / multiprocessers
+192
+
+Max threads / multiprocessers
+2048
+
+Max blocks / multiprocessers
+
+
+Max threads / block
+1024
+
+threads / Warp
+32
