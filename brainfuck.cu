@@ -8,7 +8,9 @@ __host__ void *host(void *args){
 
 __global__ void kernel(int *res, int *data){
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    thread(res, data, idx);
+    if(idx < *data){
+        thread(res, data, idx);
+    }
 }
 
 __host__ __device__ void thread(int *res, int *data, int idx){
