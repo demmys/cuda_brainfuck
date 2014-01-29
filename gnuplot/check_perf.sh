@@ -1,8 +1,14 @@
 #!/bin/bash
 
-for i in `seq 1 10`
+cp 1000000.bf tester.bf
+vim -c 'normal ggyy15p' -c 'wq' tester.bf
+touch perf_result.log
+
+for i in `seq 1 64`
 do
-    cp 1000000.bf tester.bf
-    vim -S copy_double.vim tester.bf
-    perf stat ./gpubf -nl tester.bf
+    perf stat ./gpubf -cntl tester.bf >> perf_result.log 2>&1
+    vim -c 'normal ggyy16p' -c 'wq' tester.bf
 done
+
+rm tester.bf
+less perf_result.log
