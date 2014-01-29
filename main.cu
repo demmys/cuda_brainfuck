@@ -21,6 +21,10 @@ __host__ int has_flags(char *mask_char, ...){
 
 __host__ void kernel_brainfuck(int **res, int *source, int source_len, int block_size){
     int *source_d, *res_d;
+    int grid_size = *source / block_size;
+    if(grid_size * block_size < *source){
+        grid_size++;
+    }
 
     if(has_flags("11", F_TIME, F_MEMCPY_TIME)){
         stop_watch_start();
@@ -166,11 +170,16 @@ __host__ int main(int argc, char *argv[]){
     if(flags & F_CPU){
         host_brainfuck(&res, packed_source);
     } else{
+        if(block_size < 1){
+            block_size = 1;
+        } else if(block_size > *packed_source){
+            block_size = *packed_source;
+        }
         kernel_brainfuck(&res, packed_source, packed_source_len, block_size);
     }
 
     if(flags & F_LOG){
-        printf("%10.6f\n", get_stop_watch_time());
+        printf("%-10.6f\n", get_stop_watch_time());
         return EXIT_SUCCESS;
     }
 
