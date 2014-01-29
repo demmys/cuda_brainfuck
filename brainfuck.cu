@@ -14,7 +14,7 @@ __global__ void kernel(int *res, int *data){
 }
 
 __host__ __device__ void thread(int *res, int *data, int idx){
-    int phead = *data + 1;
+    unsigned long phead = *data + 1;
     int i;
 
     for(i = 0; i < idx; i++){
