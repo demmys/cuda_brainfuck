@@ -10,7 +10,8 @@ typedef enum{
     F_CPU = 0x01,
     F_TIME = 0x02,
     F_MEMCPY_TIME = 0x04,
-    F_DIGITAL = 0x08
+    F_DIGITAL = 0x08,
+    F_LOG = 0x10
 } Flag;
 
 #endif // MAIN_H_INCLUDED
