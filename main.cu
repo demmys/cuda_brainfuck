@@ -179,7 +179,7 @@ __host__ int main(int argc, char *argv[]){
     }
 
     if(flags & F_LOG){
-        printf("%-10.6f\n", get_stop_watch_time());
+        printf("%d,%-10.6f\n", *packed_source, get_stop_watch_time());
         return EXIT_SUCCESS;
     }
 
