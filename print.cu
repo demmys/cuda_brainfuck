@@ -16,8 +16,7 @@ __host__ void help(void){
     puts("\nOPTIONS:");
     puts("\t-c\tExecute the same program on CPU(1 core, 1 thread).");
     puts("\t-h\tDisplay available options and exit.");
-    puts("\t-l\tDisplay execution time only.");
-    puts("\t\tThis option turns on the -t option.");
+    puts("\t-l\tDisplay execution time and number of processor for logging.");
     puts("\t-m\tDisplay execution time includes copying memory among host and device.");
     puts("\t\tThis option turns on the -t option.");
     puts("\t-n\tDisplay the result of execution with a number.");
