@@ -19,8 +19,12 @@ __host__ int has_flags(char *mask_char, ...){
     return 1;
 }
 
-__host__ void kernel_brainfuck(int **res, int *source, int source_len){
+__host__ void kernel_brainfuck(int **res, int *source, int source_len, int block_size){
     int *source_d, *res_d;
+    int grid_size = *source / block_size;
+    if(grid_size * block_size < *source){
+        grid_size++;
+    }
 
     if(has_flags("11", F_TIME, F_MEMCPY_TIME)){
         stop_watch_start();
@@ -31,7 +35,7 @@ __host__ void kernel_brainfuck(int **res, int *source, int source_len){
     if(has_flags("10", F_TIME, F_MEMCPY_TIME)){
         stop_watch_start();
     }
-    kernel<<<1, *source>>>(res_d, source_d);
+    kernel<<<*source / block_size, block_size>>>(res_d, source_d);
     cudaThreadSynchronize();
     if(has_flags("10", F_TIME, F_MEMCPY_TIME)){
         stop_watch_stop();
@@ -83,10 +87,14 @@ __host__ int main(int argc, char *argv[]){
     int packed_source_len;
     int i;
     char delimiter = '\n';
+    int block_size = 1;
 
     opterr = 0;
-    while((c = getopt(argc, argv, ":chmntvd:")) != -1){
+    while((c = getopt(argc, argv, ":chlmntvb:d:")) != -1){
         switch(c){
+            case 'b':
+                block_size = atoi(optarg);
+                break;
             case 'c':
                 flags = flags | F_CPU;
                 break;
@@ -95,6 +103,9 @@ __host__ int main(int argc, char *argv[]){
                 break;
             case 'h':
                 help();
+            case 'l':
+                flags = flags | F_LOG;
+                break;
             case 'n':
                 flags = flags | F_DIGITAL;
                 break;
@@ -159,8 +170,19 @@ __host__ int main(int argc, char *argv[]){
     if(flags & F_CPU){
         host_brainfuck(&res, packed_source);
     } else{
-        kernel_brainfuck(&res, packed_source, packed_source_len);
+        if(block_size < 1){
+            block_size = 1;
+        } else if(block_size > *packed_source){
+            block_size = *packed_source;
+        }
+        kernel_brainfuck(&res, packed_source, packed_source_len, block_size);
     }
+
+    if(flags & F_LOG){
+        printf("%d,%-10.6f\n", *packed_source, get_stop_watch_time());
+        return EXIT_SUCCESS;
+    }
+
     for(i = 0; i < *packed_source; i++){
         if(flags & F_DIGITAL){
             printf("%d ", res[i]);
