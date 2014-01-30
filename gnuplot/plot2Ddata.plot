@@ -1,7 +1,8 @@
 set datafile separator ","
-plot "$1.dat"
+plot "cpu_speed/average.log"
+plot "gpu_speed/average.log"
 set terminal postscript eps enhanced color
-set output "$1.eps"
+set output "average.eps"
 replot
 set output
 set terminal x11
