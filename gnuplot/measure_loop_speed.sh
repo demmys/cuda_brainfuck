@@ -8,7 +8,7 @@ mkdir $dir
 average="${dir}/average.log"
 touch $average
 
-for i in `seq 1 5`
+for i in `seq 1 256`
 do
     thread=$i
     file="${dir}/${thread}thread.log"
