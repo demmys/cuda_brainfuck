@@ -8,7 +8,8 @@
 
 typedef enum{
     F_CPU = 0x01,
-    F_LOG = 0x10
+    F_OPT = 0x02,
+    F_LOG = 0x04
 } Flag;
 
 typedef struct{
