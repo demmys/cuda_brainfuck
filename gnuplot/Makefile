@@ -1,5 +1,5 @@
 NVCC = nvcc
-CFLAGS = -gencode=arch=compute_20,code=\"sm_20,compute_20\" -g
+CFLAGS = -gencode=arch=compute_20,code=\"sm_20,compute_20\"
 
 TARGET = gpuloop
 OBJS = ../stopwatch.o loop.o 

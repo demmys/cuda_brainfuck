@@ -59,7 +59,7 @@ __host__ int *kernel_loop(int thread_num){
     stop_watch_stop();
 
     res = (int *)malloc(sizeof(int) * thread_num);
-    cudaMemcpy(&res, res_d, sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(res, res_d, sizeof(int), cudaMemcpyDeviceToHost);
     cudaFree(res_d);
     return res;
 }
