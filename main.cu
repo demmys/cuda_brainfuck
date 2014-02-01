@@ -55,11 +55,11 @@ __host__ void host_brainfuck(int **res, int *source){
     ThreadArgs *args;
     pthread_t *threads;
 
+    threads = (pthread_t *)malloc(sizeof(pthread_t) * thread_size);
     if(flags & F_TIME){
         stop_watch_start();
     }
 
-    threads = (pthread_t *)malloc(sizeof(pthread_t) * thread_size);
     for(idx = 0; idx < thread_size; idx++){
         args = (ThreadArgs *)malloc(sizeof(ThreadArgs));
         args->res = *res;
@@ -70,11 +70,11 @@ __host__ void host_brainfuck(int **res, int *source){
     for(idx = 0; idx < thread_size; idx++){
         pthread_join(threads[idx], NULL);
     }
-    free(threads);
 
     if(flags & F_TIME){
         stop_watch_stop();
     }
+    free(threads);
 }
 
 __host__ int main(int argc, char *argv[]){

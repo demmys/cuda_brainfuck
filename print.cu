@@ -1,6 +1,6 @@
 #include "print.h"
 
-const char *usage = "USAGE: gpubf [-chmntv] [-d character] [file ...]";
+const char *usage = "USAGE: gpubf [-chlmntv] [-d character] [-b number of blocks] [file ...]";
 
 __host__ void error(char *format, ...){
     va_list args;
